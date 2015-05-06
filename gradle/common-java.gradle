@@ -61,6 +61,35 @@ task prepareJavadocArchive(type: Jar){
     dependsOn javadoc
 }
 
+/*
+sourceSets {
+    integrationTest {
+        compileClasspath += main.output + test.output
+        runtimeClasspath += main.output + test.output
+    }
+}
+*/
+
+sourceSets {
+    integrationTest {
+        // slideshare
+        java.srcDir file('src/integTest/java')
+        resources.srcDir file('src/integTest/resources')
+        compileClasspath = sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+task integrationTest(type: Test, dependsOn: jar) {
+    group 'Verification'
+    description 'Runs the integration tests.'
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+//    testResultsDir = file("$testResultsDir/integration")
+
+//    systemProperties['jar.path'] = jar.archivePath
+}
+
 task copyLibsToGlobalArtifactsFolder(type: Copy) {
     from libsDir
     into new File(artifactsDirectoryRoot, project.name)
